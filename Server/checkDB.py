@@ -2,8 +2,6 @@ import sqlite3
 import os
 from datetime import datetime
 
-from nameToUUID import text_to_hex_id
-
 
 def check_and_create_tables():
     # Check if the "defensive.db" file exists
@@ -56,7 +54,6 @@ def check_name_exists(name):
     # Execute a SELECT query to check if the name exists in the "clients" table
     cursor.execute("SELECT COUNT(*) FROM clients WHERE name=?", (name,))
 
-    # Fetch the result
     result = cursor.fetchone()
 
     # Close the database connection
@@ -66,12 +63,15 @@ def check_name_exists(name):
     return result[0] > 0
 
 
+# function that add a new client
 def add_new_client(name):
     if not check_name_exists(name):
+        # connect to DB
         conn = sqlite3.connect("defensive.db")
         cursor = conn.cursor()
         # Insert a new row with the provided name into the "clients" table
         cursor.execute("INSERT INTO clients (name) VALUES (?)", (name,))
+        # save the DB
         conn.commit()
         conn.close()
         print(f"Client '{name}' has been added to the database.")
@@ -80,20 +80,23 @@ def add_new_client(name):
 
 
 def add_uuid_client(uuid, name):
+    # connect to DB
     conn = sqlite3.connect("defensive.db")
     cursor = conn.cursor()
-    # Insert a new row with the provided name into the "clients" table
+    # update the UUID with the provided name into the "clients" table
     cursor.execute("UPDATE clients SET ID = ? WHERE name = ?", (uuid, name))
+    # save the DB
     conn.commit()
     conn.close()
     print(f"UUId '{uuid}' has been added to the Client.")
 
 
 def last_time_seen_update(name):
+    # connect to DB
     conn = sqlite3.connect("defensive.db")
     cursor = conn.cursor()
     current_datetime = datetime.now()
-    # Insert a new row with the provided name into the "clients" table
+    # update the Last Seen with the provided name into the "clients" table
     cursor.execute("UPDATE clients SET LastSeen = ? WHERE name = ?", (current_datetime, name))
     conn.commit()
     conn.close()
@@ -101,10 +104,113 @@ def last_time_seen_update(name):
 
 
 def add_pub_key_client(client_name, pubkey):
+    # connect to the DB
     conn = sqlite3.connect("defensive.db")
     cursor = conn.cursor()
-    # Insert a new row with the provided name into the "clients" table
+    # update the Public Key with the provided name into the "clients" table
     cursor.execute("UPDATE clients SET PublicKey = ? WHERE name = ?", (pubkey, client_name))
+    # save DB
     conn.commit()
     conn.close()
     print("Client public key has updated for client")
+
+
+def add_aes_key_db(client_name, aes_key):
+    # connect to the DB
+    conn = sqlite3.connect("defensive.db")
+    cursor = conn.cursor()
+    # update the AES Key with the provided name into the "clients" table
+    cursor.execute("UPDATE clients SET AESKey = ? WHERE name = ?", (aes_key, client_name))
+    conn.commit()
+    conn.close()
+    print("Client AES KEY key has updated")
+
+
+def add_file_db(ID, file_name,file_path):
+    # connect to the DB
+    conn = sqlite3.connect("defensive.db")
+    cursor = conn.cursor()
+    # Insert a new row with the provided file_name into the "files" table
+    cursor.execute("INSERT INTO files (FileName) VALUES (?)", (file_name,))
+    # update the ID and PathName with the provided name into the "clients" table
+    cursor.execute("UPDATE files SET ID = ? WHERE FileName = ?", (ID, file_name))
+    cursor.execute("UPDATE files SET PathName = ? WHERE ID = ?", (file_path, ID))
+    conn.commit()
+    conn.close()
+    print("file has been updated in DB successfully")
+
+
+def set_file_verification_db(file_name):
+    # connect to the DB
+    conn = sqlite3.connect("defensive.db")
+    cursor = conn.cursor()
+    # update the Verified value to TRUE with the provided name into the "clients" table
+    cursor.execute("UPDATE files SET Verified = ? WHERE FileName = ?", (1, file_name))
+    conn.commit()
+    conn.close()
+    print("Verified file has been updated")
+
+
+def get_public_key(client_name):
+    # connect to the DB
+    conn = sqlite3.connect("defensive.db")
+    cursor = conn.cursor()
+    # get the public key of a client by the client name
+    cursor.execute("SELECT PublicKey FROM clients WHERE name=?", (client_name,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        # Extract the bytes object from the tuple
+        public_key_bytes = result[0].strip()
+        return public_key_bytes
+    else:
+        # public key is empty
+        return None
+
+
+def get_aes_key(client_name):
+    # connect to DB
+    conn = sqlite3.connect("defensive.db")
+    cursor = conn.cursor()
+    # get the AES key of a client by the client name
+    cursor.execute("SELECT AESKey FROM clients WHERE name=?", (client_name,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        # Extract the bytes object from the tuple
+        aes_key_bytes = result[0].strip()
+        return aes_key_bytes
+    else:
+        return None
+
+
+def get_UUID(client_name):
+    # connect to DB
+    conn = sqlite3.connect("defensive.db")
+    cursor = conn.cursor()
+    # get the ID of a client by the client name
+    cursor.execute("SELECT ID FROM clients WHERE name=?", (client_name,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        # Extract the bytes object from the tuple
+        id_bytes = result[0].strip()
+        return id_bytes
+    else:
+        return None
+
+
+def get_aes_key_by_id(client_id):
+    # connect to DB
+    conn = sqlite3.connect("defensive.db")
+    cursor = conn.cursor()
+    # get the AES key of a client by the client ID
+    cursor.execute("SELECT AESKey FROM clients WHERE ID=?", (client_id,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        # Extract the bytes object from the tuple
+        aes_key_bytes = result[0].strip()
+        return aes_key_bytes
+    else:
+        return None

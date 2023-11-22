@@ -26,7 +26,7 @@ create_table_query = '''
 CREATE TABLE files (
     ID BLOB(16),
     FileName TEXT(255) NOT NULL,
-    PathName TEXT(255) NOT NULL,
+    PathName TEXT(255) ,
     Verified BOOLEAN
 );
 '''
@@ -35,4 +35,4 @@ CREATE TABLE files (
 cursor.execute(create_table_query)
 
 conn.commit()
-conn.close()
+conn.close() # close the SQL file

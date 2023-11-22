@@ -1,58 +1,50 @@
-# This is a sample Python script.
+# This is a Server
 import os
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-import sqlite3
+import threading
 import socket
-import struct
 
-from handler import handle_req
 from checkDB import check_and_create_tables
-from checkDB import check_name_exists
-
+from handler import handle_req
 from requestToServer import request_from_client
 
-PORT = 1357
-if not os.path.exists("port.info"):
-    print("file does not exist, will work on port 1357")
 
-else:
-    # reading the port from the file
-    with open("port.info", "r") as file:
-        # Read the first line
-        PORT = file.readline().strip()
+def handle_client(conn, addr):
+    print('connected by', addr)
+    while True:
+        request = request_from_client(conn)  # waiting for request from the client
+        if request is None:
+            break
+        handle_req(request, conn)  # handling the request
+    print('Client has logged off', addr)    # not request from the client, sign off the client
+    conn.close()
 
-HOST = ''
 
-check_and_create_tables()
+def main():
+    HOST = ''
+    PORT = 1357  # Defoult port
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, int(PORT)))
-    print("waiting for a client in port" + str(PORT))
-    s.listen()
-    conn, addr = s.accept()
-    with conn:
-        print('connected by', addr)
+    # check DB files
+    check_and_create_tables()
+    # Read port from file
+    if not os.path.exists("port.info"):
+        print("file does not exist, will work on port 1357") # if not exist
+
+    else:
+        # reading the port from the file
+        with open("port.info", "r") as file:
+            # Read the first line
+            PORT = file.readline().strip()
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((HOST, int(PORT)))
+        print("waiting for clients on port " + str(PORT))
+        s.listen()
+
         while True:
-            request = request_from_client(conn)  # in requestToServer.py
-            if request is None:
-                break;
-            handle_req(request, conn)  # in request.py
-            a = input("enter 0 to exit")
-            if a == '0':
-                break
-            # obj = conn.recv(1024)
-            # text = obj.decode("utf-8")
-            # print(str(request['id']) + "\n version " + str(request['version']) + "code" + str(
-            #   request['code']) + "length" + str(request['payload_length'])+"\n payload:"+str(request['payload']))
-            # print(obj)
-            #  obj = request_to_server(conn)
-            # if obj is None:
-            #   break
-            break;
+            conn, addr = s.accept()  # waiting for client, if connected, will start the process
+            client_thread = threading.Thread(target=handle_client, args=(conn, addr))
+            client_thread.start()   # thread to support several clients
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+if __name__ == "__main__":
+    main()

@@ -2,7 +2,8 @@ from answers import case_2100, case_2101, case_2102, case_2103, case_2104, case_
 from requests import case1025, case1026, case1027, case1028, case1029, case1030, case1031, default
 
 
-def handle_req(clientrequest,conn):
+# function that handle a request after put it in a request struct
+def handle_req(clientrequest, conn):
     switch_dict = {
         1025: case1025,  # registration
         1026: case1026,  # send publicKey
@@ -14,9 +15,10 @@ def handle_req(clientrequest,conn):
     }
 
     selected_case = switch_dict.get(clientrequest['code'], default)
-    selected_case(clientrequest, conn)
+    return selected_case(clientrequest, conn)
 
 
+# function that handle an answer after put it in an answer struct
 def handle_answer(value):
     switch_dict = {
         2100: case_2100,

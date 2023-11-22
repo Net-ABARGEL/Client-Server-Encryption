@@ -20,7 +20,15 @@ add_executable(DefensiveProject_final main.cpp
         main.h
         answers.cpp
         answers.h
-        serverAnswerStruct.h)
+        serverAnswerStruct.h
+        encryption.cpp
+        encryption.h
+        AESWrapper.h
+        AESWrapper.cpp
+        checkSum.cpp
+        checkSum.h
+        Base64Wrapper.cpp
+        Base64Wrapper.h)
 
 set(CryptoPP_DIR /Users/abargel_ido/cryptopp)
 

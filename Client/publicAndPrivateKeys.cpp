@@ -1,12 +1,9 @@
-#include <cryptopp/rsa.h>
-#include <cryptopp/osrng.h>
-#include <cryptopp/base64.h>
-#include <iostream>
-#include <fstream>
 
+#include "publicAndPrivateKeys.h"
 
 using namespace CryptoPP;
 
+// function that create the public and private key
 RSA::PublicKey createPublicAndPrivateKey(){
 
 

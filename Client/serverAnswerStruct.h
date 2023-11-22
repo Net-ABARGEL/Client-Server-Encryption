@@ -15,6 +15,7 @@ struct AnswerFromServer{
     uint32_t payloadSize;      // 4 byte integer
     std::vector<uint8_t> payload;
 
+    //initialize ansewer struct from the server
     AnswerFromServer(uint8_t version, uint16_t code, uint32_t payloadSize, const std::vector<uint8_t>& payload)
             : version(version), code(code), payloadSize(payloadSize), payload(payload){
     }

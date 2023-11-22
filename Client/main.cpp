@@ -1,20 +1,10 @@
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <boost/asio.hpp>
-#include <cryptopp/rsa.h>
-#include <cryptopp/osrng.h>
-#include <cryptopp/base64.h>
-#include <tuple>
-#include "publicAndPrivateKeys.h"
-#include "serverRequsetStruct.h"
-#include "requests.h"
 
-
+#include "main.h"
 
 using namespace boost::asio;
 using namespace CryptoPP;
 
+// function that checks if the user files is exist lime me.info
 bool checkUserFiles(){
 
     //check if the file exist
@@ -77,20 +67,25 @@ bool checkUserFiles(){
     return true;
 }
 
+
+//function that read client ID from the me.info file
 std::string readClientID() {
     std::string userNameFile = "me.info";
     // Open the file for input
     std::ifstream file(userNameFile);
 
     std::string line;
+    // check if the files exist
     if (file.is_open())
     {
         std::getline(file, line);
         std::getline(file, line);
     }
 
-    return line;
+    return line; //return client ID if file exist
 }
+
+// function that reads Username from me.info file
 std::string readUserName(){
 
     std::string userNameFile = "me.info";
@@ -98,12 +93,32 @@ std::string readUserName(){
     std::ifstream file(userNameFile);
 
     std::string line;
+    // check if file exist
     if (file.is_open())
     {
         std::getline(file, line);
     }
 
-    return line;
+    return line; //return file name
+}
+
+// function that receive the filePath
+std::string getFilePath(){
+
+    std::string userNameFile = "transfer.info";
+    // Open the file for input
+    std::ifstream file(userNameFile);
+
+    std::string line;
+    // checl if the file exist
+    if (file.is_open())
+    {
+        std::getline(file, line);
+        std::getline(file, line);
+        std::getline(file, line);
+    }
+
+    return line; //return the third line - file path
 }
 
 //function that seperate the IP and the Port from the transfer file
@@ -115,11 +130,13 @@ void readIpAndPort(std::string& ipAddress, std::string& port){
     std::string line;
     std::getline(file, line);
 
-    size_t colonPos = line.find(':');
+    size_t colonPos = line.find(':'); //read untill the : and seperate IP and Port
     ipAddress = line.substr(0, colonPos);
     port = line.substr(colonPos + 1);
 
 }
+
+// function that connect to the server with TCP using socket.
 ip::tcp::socket connectToServer(){
 
    // RequestToServer request{readUserName(), 1, 0001, 1000   , "HelloWorld"};
@@ -129,6 +146,7 @@ ip::tcp::socket connectToServer(){
     std::string ipAddress;
     std::string port;
 
+    // reading the connection datat
     readIpAndPort(ipAddress,port);
 
     // Create an endpoint
@@ -144,12 +162,13 @@ ip::tcp::socket connectToServer(){
 
         std::cout << "Connected to the server from "<< ipAddress<< " in port " << port << std::endl;
 
-
+        // error connecting
         if (error) {
             throw boost::system::system_error(error);
         }
 
-        std::cout << "waiting for answer from the server" << std::endl;
+        std::cout << "\nwaiting for answer from the server" << std::endl;
+
 
         if (error == boost::asio::error::eof) {
             // Connection closed by the server
@@ -169,9 +188,10 @@ ip::tcp::socket connectToServer(){
 
 
 int main() {
-    //checkUserFiles();
-    //createPublicAndPrivateKey();
+
+    std::cout << "Hi, my name is Ido Abargel ID: 318254562\n A student in the course Defensive Programing\n " << std::endl;
     boost::asio::ip::tcp::socket socket = connectToServer();
-    handle_requests(getRequestCode(),socket);//getRequestCode());
+    // starting system process
+    handle_requests(getRequestCode(),socket);
 }
 

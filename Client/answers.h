@@ -7,10 +7,23 @@
 #include <iostream>
 #include "main.h"
 #include <boost/asio.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 #include "serverAnswerStruct.h"
+#include "answers.h"
+#include "requests.h"
+#include "encryption.h"
+#include <fstream>
+#include <bitset>
+#include <sstream>
+#include "checkSum.h"
+
 
 void handleAnswer(boost::asio::ip::tcp::socket& socket);
-AnswerFromServer setServerAnswer(boost::asio::ip::tcp::socket& socket);
+AnswerFromServer getServerAnswer(boost::asio::ip::tcp::socket& socket);
+std::string binaryToHex(const std::string& binaryString);
+boost::multiprecision::cpp_int binaryToDecimal(const std::string& binaryString);
+std::string decimalToHex(const boost::multiprecision::cpp_int& decimalValue) ;
+
 
 void case_2100(AnswerFromServer& answer,boost::asio::ip::tcp::socket& socket);
 void case_2101(AnswerFromServer& answer,boost::asio::ip::tcp::socket& socket);
